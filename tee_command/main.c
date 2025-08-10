@@ -12,8 +12,8 @@ int main(int argc, char* argv[]){
     ssize_t bytes_written, bytes_readed;
     int fd_open, append, open_flags, open_perms;
 
-    if(argc < 2 || argc > 3){
-        printf("Only 2 parameters accepted: %s -a [optional] filepath\n", argv[0]);
+    if(argc < 2 || argc > 3 || (argc == 2 && !strcmp(argv[1], "-a")) || (argc == 3 && strcmp(argv[1], "-a"))){
+        printf("1 or 2 parameters accepted: %s -a [optional] filepath\n", argv[0]);
         return 1;
     }
 
