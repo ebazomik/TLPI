@@ -1,7 +1,7 @@
 /*  With this execise verify the flag O_APPEND.
  *  O_APPEND grants the atomicity of opened file to prevent overwrite data in a multi-process context.
- *  With O_APPEND, before every call to write the offset of file is set to end of current data 
- *  Also try getopt for parse iunput arguments
+ *  With O_APPEND, before every call to write the offset of file is set to end of existing data. 
+ *  Also try getopt for parse input arguments.
  *  */
 
 #include <stdio.h>
