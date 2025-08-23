@@ -1,3 +1,7 @@
+/* To test race condition -> program -f f1 -b 1000000 -x & program -f f1 -b 1000000 -x */
+/* To run with O_APPEND and prevent race condition -> program -f f2 -b 1000000 & program -f f2 -b 1000000 */
+/* After, compare with ls -l the size of two file created */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
