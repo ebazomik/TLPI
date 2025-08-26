@@ -15,10 +15,11 @@ int main(int argc, char ** argv){
     int oldFd = atoi(argv[1]);
     int newFd = atoi(argv[2]);
 
-    int oldFdIsValid = 1;
+    /* atoi returns 0 in case of conversion error,
+    so you could check the result of this part more robustly. */
+
     if(oldFd == newFd){
-        oldFdIsValid = fcntl(oldFd, F_GETFL);
-        if(oldFdIsValid == -1) {
+        if(fcntl(oldFd, F_GETFL) == -1) {
             printf("errno: %d\n", errno);
             printf("errno msg: %s\n", strerror(errno));
             return 1;
@@ -27,7 +28,7 @@ int main(int argc, char ** argv){
 
     int fd = fcntl(oldFd, F_DUPFD, newFd);
 
-    if(fd == -1){
+    if(){
         printf("Error on duplicate fd\n");
         printf("errno: %d\n", errno);
         printf("errno msg: %s\n", strerror(errno));
