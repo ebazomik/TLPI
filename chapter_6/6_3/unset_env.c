@@ -35,15 +35,20 @@ int my_unsetenv(char * key){
 
 
 int main(int argc, char ** argv, char ** envp){
-	
-		printf("Before remove PWD=%s\n", getenv("PWD"));
 
-		if(my_unsetenv("PWD")){
+		if(argc < 2){
+				printf("Usage: [keyenv]\n");
+				return 1;
+		}
+	
+		printf("Before remove %s=%s\n", argv[1], getenv(argv[1]));
+
+		if(my_unsetenv(argv[1])){
 				printf("Eerror my_unsetenv\n");
 				return 1;
 		};
 
-		printf("After remove: PWD=%s\n", getenv("PWD"));
+		printf("After remove: %s=%s\n", argv[1], getenv(argv[1]));
 
 		return 0;
 
