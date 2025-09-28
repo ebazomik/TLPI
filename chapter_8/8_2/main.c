@@ -23,6 +23,7 @@ struct passwd * my_get_pwnam(char* user){
 				if(strcmp(pwd->pw_name, user) == 0){
 
 						struct passwd * pass = malloc(sizeof(struct passwd));
+						if(pass == NULL) return NULL;
 						pass = pwd;
 						return pass;
 
@@ -60,6 +61,10 @@ int main(int argc, char** argv){
 				printf("%s\n", user_info->pw_shell);
 
 		}
+
+		free(user_info);
+
+		
 
 		return 0;
 }
