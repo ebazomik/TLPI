@@ -1,3 +1,15 @@
+/*	
+ *	Copyright (C) 2025 ebazomik
+ *
+ *	Simple implementation of getpwnam.
+ *
+ *	This implementation uses getpwent and endpwent for iterate througth etc/passwd
+ *	to find the correct user, returning pointer to struct * passwd or NULL if not found
+ *  
+ *	Licence: MIT
+ */
+
+
 #include <stdio.h>
 #include <pwd.h>
 #include <stdlib.h>
