@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define MAX_CHILDREN 256
 
@@ -22,19 +23,14 @@ struct process_node {
 
 /* Read bytes until meet new line (\n) */
 size_t read_line(int fd, char * buffer_line, size_t size){
-	if(size == 0) return -1;
+	if(size == 0) return 0;
 
 	size_t bytes_read = 0;
-	char ch;
+	char ch = 0;
 
 	while(bytes_read < size -1){
 		ssize_t ch_read = read(fd, &ch, 1);
-		if(ch == 0){
-			buffer_line[bytes_read] = '\0';
-			return bytes_read;
-		}
-
-		if(ch <= 0) break;
+		if(ch_read <= 0) break;
 		
 		if(ch == '\n'){
 			buffer_line[bytes_read] = '\0';
@@ -46,7 +42,7 @@ size_t read_line(int fd, char * buffer_line, size_t size){
 
 	buffer_line[bytes_read] = '\0';
 	return bytes_read;
-};
+}
 
 /* Return pid_t valure for recover pid and ppid */
 pid_t get_value(char * buffer, char * key){
@@ -79,7 +75,7 @@ void dfs(struct process_node * list, int count){
 
 
 
-int main(int argv, char ** argc){
+int main(){
 
 	errno = 0;
 	struct rlimit rlim;
@@ -92,10 +88,16 @@ int main(int argv, char ** argc){
 	size_t plimit = rlim.rlim_cur;
 	struct process_node *process_list = malloc(plimit * sizeof(struct process_node));
 
+	if(process_list == NULL){
+		printf("Error: try to allocate process_list with RLIMIT_NPROC\n");
+		return 1;
+	}
+
 	errno = 0;
 	DIR * proc = opendir("/proc/");
 	if(proc == NULL){
 		printf("Error on open /proc/: %s\n", strerror(errno));
+		free(process_list);
 		return 1;
 	}
 
@@ -103,17 +105,19 @@ int main(int argv, char ** argc){
 	errno = 0;
 	int pcount = 0;
 
-	while(process = readdir(proc)){
+	while((process = readdir(proc)) != NULL){
 		if(errno != 0){
-			printf("Error on read procces in /proc/: \n", strerror(errno));
+			printf("Error on read procces in /proc/: %s\n", strerror(errno));
+			free(process_list);
 			return 1;
 		}
 	
 		/* Get info only if is a valid process */
 		errno = 0;
-		long valid_process = strtol(process->d_name, NULL, 10);
+		char * endptr;
+		long valid_process = strtol(process->d_name, &endptr, 10);
 
-		if(process->d_type == DT_DIR && errno == 0 && valid_process){
+		if(process->d_type == DT_DIR && *endptr == '\0' && valid_process){
 
 			struct process_node node;
 			node.pid = -1;
@@ -125,7 +129,7 @@ int main(int argv, char ** argc){
 				node.children[i] = NULL;
       }
 
-			char process_path_status[256];
+			char process_path_status[PATH_MAX];
 			snprintf(process_path_status, sizeof(process_path_status), "/proc/%s/status", process->d_name);
 
 			int fd_status = open(process_path_status, O_RDONLY);
@@ -157,20 +161,22 @@ int main(int argv, char ** argc){
 					break;
 				}
 			}
+
+			close(fd_status);
 			
 			if(node.pid != -1){
-				char process_path_cmdline[30];
+				char process_path_cmdline[PATH_MAX];
         snprintf(process_path_cmdline, sizeof(process_path_cmdline), "/proc/%s/cmdline", process->d_name);
 
         int fd_cmdline = open(process_path_cmdline, O_RDONLY);
         if(fd_cmdline != -1){
 					char line_cmdline[256];
-          size_t readed_cmdline = read_line(fd_cmdline, line_cmdline, sizeof(line_cmdline) - 1);
+          ssize_t readed_cmdline = read_line(fd_cmdline, line_cmdline, sizeof(line_cmdline) - 1);
 
           if(readed_cmdline > 0){
 						line_cmdline[readed_cmdline] = '\0';
                     
-            for(int i = 0; i < readed_cmdline; i++){
+            for(ssize_t i = 0; i < readed_cmdline; i++){
 							if(line_cmdline[i] == '\0') line_cmdline[i] = ' ';
             }
                     
@@ -205,6 +211,8 @@ int main(int argv, char ** argc){
 
 	/* Print formatted data */
 	dfs(process_list, pcount);
+	free(process_list);
+
 
 	return 0;
 }
