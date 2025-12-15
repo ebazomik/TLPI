@@ -9,11 +9,6 @@
 
 int main(){
 	
-	//read /proc/ dir and scan all process - OK
-	//verify and open only real process - OK
-	//read fd simbolic link from fd dir of PID (use readlink)
-	//print simbolic link
-	
 	errno = 0;
 
 	DIR * procDir = opendir("/proc/");
