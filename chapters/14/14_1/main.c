@@ -5,13 +5,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h> 
-
-// Create files in specific directory in random order (large number like xNNNNNN)
-// xNNNNNN random six digits in casual order
-// Remove all files from specific directory
-// Create dir if not exist
-// Create random number
+#include <unistd.h>
+#include <time.h>
 
 int openDirOrCreate(char *path){
 	DIR *dir = opendir(path);
@@ -46,6 +41,26 @@ int createOneByteFile(char *path, int file){
 	close(fd);
 	return 0;
 }
+
+int populateBuffer(int* buffer, int length){
+	if(buffer == NULL) return 1;
+	for(int i = 0; i < length -1; i++){
+		buffer[i] = i;
+	}
+}
+
+// [bufferShuffle] use knuth shuffle (Fisher-Yates)
+// for shuffle buffer values
+int bufferShuffle(int* buffer, int length){
+	if(buffer == NULL) return 1;
+	srand(time(NULL));
+	for(int i = length -1; i >= 0; i--){
+		int r = rand() % length;
+		int temp = buffer[i];
+		buffer[i] = buffer[r];
+		buffer[r] = temp;
+	}
+} 
 
 int removeFile(int fd){}
 void generateFiles(int n, char *path){}
@@ -86,8 +101,20 @@ int main(int argc, char ** argv){
 		return 1;
 	}
 
-	int result = createOneByteFile(path, 250);
+	int buffer[quantity];
+	if(populateBuffer(buffer, quantity) == -1){
+		printf("Error on populate buffer\n");
+		return 1;
+	}
 
+	if(bufferShuffle(buffer, quantity) == -1){
+		printf("Error on shuffle buffer\n");
+		return 1;
+	}
+
+	for(int i = 0; i < quantity -1; i++){
+		createOneByteFile(path, i);
+	}
 
 	return 0;
 }
