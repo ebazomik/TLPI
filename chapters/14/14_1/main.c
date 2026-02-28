@@ -23,7 +23,7 @@ int openDirOrCreate(char *path){
 
 int createOneByteFile(char *path, int file){
 	char buf[256];
-	snprintf(buf, 256, "%s/%d", path, file);
+	snprintf(buf, 256, "%s/x%d", path, file);
 
 	int fd = open(buf, O_CREAT | O_WRONLY, 0755);
 	if(fd == -1){
@@ -44,8 +44,9 @@ int createOneByteFile(char *path, int file){
 
 int populateBuffer(int* buffer, int length){
 	if(buffer == NULL) return 1;
+	srand(time(NULL));
 	for(int i = 0; i < length -1; i++){
-		buffer[i] = i;
+		buffer[i] = rand() % 100001;
 	}
 }
 
@@ -112,8 +113,8 @@ int main(int argc, char ** argv){
 		return 1;
 	}
 
-	for(int i = 0; i < quantity -1; i++){
-		createOneByteFile(path, i);
+	for(int i = 0; i <= quantity -1; i++){
+		createOneByteFile(path, buffer[i]);
 	}
 
 	return 0;
