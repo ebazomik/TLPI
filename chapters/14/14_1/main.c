@@ -44,7 +44,7 @@ int createOneByteFile(char *path, int file){
 
 int populateBuffer(int* buffer, int length){
 	if(buffer == NULL) return 1;
-	srand(time(NULL));
+
 	for(int i = 0; i < length -1; i++){
 		buffer[i] = rand() % 100001;
 	}
@@ -54,9 +54,9 @@ int populateBuffer(int* buffer, int length){
 // for shuffle buffer values
 int bufferShuffle(int* buffer, int length){
 	if(buffer == NULL) return 1;
-	srand(time(NULL));
-	for(int i = length -1; i >= 0; i--){
-		int r = rand() % length;
+
+	for(int i = length -1; i > 0; i--){
+		int r = rand() % (i + 1);
 		int temp = buffer[i];
 		buffer[i] = buffer[r];
 		buffer[r] = temp;
@@ -102,20 +102,27 @@ int main(int argc, char ** argv){
 		return 1;
 	}
 
+	srand(time(NULL));
+
 	int buffer[quantity];
 	if(populateBuffer(buffer, quantity) == -1){
 		printf("Error on populate buffer\n");
 		return 1;
 	}
 
-	if(bufferShuffle(buffer, quantity) == -1){
-		printf("Error on shuffle buffer\n");
-		return 1;
-	}
+	// After populate buffer, files are already random.
+	// Not need bufferShuffle, but was utils larn it. 
+
+	//if(bufferShuffle(buffer, quantity) == -1){
+	//	printf("Error on shuffle buffer\n");
+	//	return 1;
+	//}
 
 	for(int i = 0; i <= quantity -1; i++){
 		createOneByteFile(path, buffer[i]);
 	}
+
+	printf("\n");
 
 	return 0;
 }
